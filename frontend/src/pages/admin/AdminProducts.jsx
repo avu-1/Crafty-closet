@@ -108,8 +108,8 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="card overflow-hidden">
+      {/* Desktop Table (hidden on mobile) */}
+      <div className="card overflow-hidden hidden md:block">
         <div className="overflow-x-auto">
           {loading ? (
             <div className="flex justify-center py-16"><Spinner size="lg" /></div>
@@ -159,6 +159,44 @@ export default function AdminProducts() {
         </div>
       </div>
 
+      {/* Mobile Card Layout (visible only on mobile) */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="flex justify-center py-16"><Spinner size="lg" /></div>
+        ) : filtered.length === 0 ? (
+          <div className="card p-8 text-center text-rose-300">No products found</div>
+        ) : filtered.map(p => (
+          <div key={p.id} className="card p-4 animate-fade-in">
+            <div className="flex items-start gap-3">
+              <img src={imgSrc(p.image)} alt={p.name}
+                className="w-16 h-16 rounded-xl object-cover bg-rose-50 shrink-0"
+                onError={e => { e.target.onerror=null; e.target.src=PLACEHOLDER; }} />
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-rose-800 text-sm truncate">{p.name}</h3>
+                <span className="inline-block px-2 py-0.5 bg-rose-100 text-rose-700 text-[10px] font-bold rounded-full capitalize mt-1">{p.category}</span>
+                <div className="flex items-center gap-3 mt-2">
+                  <span className="font-bold text-rose-700 text-sm">{formatPrice(p.price)}</span>
+                  <span className={`text-xs font-bold ${p.stock===0?'text-red-500':p.stock<=5?'text-amber-500':'text-emerald-600'}`}>
+                    Stock: {p.stock}
+                  </span>
+                  {p.rating > 0 && <span className="text-amber-500 text-xs">★ {p.rating}</span>}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-rose-50">
+              <button onClick={() => toggleActive(p)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${p.is_active?'bg-emerald-100 text-emerald-700':'bg-red-100 text-red-600'}`}>
+                {p.is_active ? 'Active' : 'Hidden'}
+              </button>
+              <div className="flex gap-2">
+                <button onClick={() => openEdit(p)} className="p-2 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"><Pencil size={16} /></button>
+                <button onClick={() => del(p.id, p.name)} className="p-2 rounded-lg text-red-300 hover:text-red-500 hover:bg-red-50 transition-colors"><Trash2 size={16} /></button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Add / Edit Modal */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}
         title={editing ? 'Edit Product' : 'Add New Product'} maxWidth="max-w-2xl">
@@ -181,8 +219,8 @@ export default function AdminProducts() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
               <label className="form-label">Product Name *</label>
               <input className="form-input" placeholder="Rose Gold Floral Studs" value={form.name} onChange={setF('name')} />
             </div>
@@ -205,7 +243,7 @@ export default function AdminProducts() {
               <label className="form-label">Compare Price (₹)</label>
               <input className="form-input" type="number" min="0" step="0.01" placeholder="399 (strikethrough)" value={form.compare_price} onChange={setF('compare_price')} />
             </div>
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <label className="form-label">Description</label>
               <textarea className="form-input" rows={3} placeholder="Describe this beautiful piece…" value={form.description} onChange={setF('description')} />
             </div>

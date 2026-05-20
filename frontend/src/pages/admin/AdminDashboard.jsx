@@ -39,7 +39,7 @@ export default function AdminDashboard() {
 
       {loading ? <div className="flex justify-center py-20"><Spinner size="lg" /></div> : data && (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
             <StatCard icon={Package}       label="Products"       value={data.stats.total_products} color="rose" />
             <StatCard icon={ShoppingCart}  label="Orders"         value={data.stats.total_orders}   color="blue" />
             <StatCard icon={Users}         label="Customers"      value={data.stats.total_users}    color="purple" />

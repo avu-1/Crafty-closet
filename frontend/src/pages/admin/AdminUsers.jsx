@@ -59,7 +59,8 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      <div className="card overflow-hidden">
+      {/* Desktop Table (hidden on mobile) */}
+      <div className="card overflow-hidden hidden md:block">
         <div className="overflow-x-auto">
           {loading ? <div className="flex justify-center py-16"><Spinner size="lg" /></div> : (
             <table className="tbl w-full">
@@ -127,6 +128,64 @@ export default function AdminUsers() {
             </table>
           )}
         </div>
+      </div>
+
+      {/* Mobile Card Layout */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="flex justify-center py-16"><Spinner size="lg" /></div>
+        ) : users.length === 0 ? (
+          <div className="card p-8 text-center text-rose-300">No users found</div>
+        ) : users.map(u => (
+          <div key={u.id} className="card p-4 animate-fade-in">
+            <div className="flex items-start gap-3">
+              {u.avatar ? (
+                <img src={u.avatar} alt={u.name} className="w-11 h-11 rounded-full object-cover shrink-0" />
+              ) : (
+                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-rose-300 to-rose-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                  {u.name[0].toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm text-rose-800 flex items-center gap-1.5 flex-wrap">
+                  <span className="truncate">{u.name}</span>
+                  {u.id === me?.id && <span className="text-[10px] bg-rose-100 text-rose-500 px-1.5 py-0.5 rounded-full font-bold shrink-0">You</span>}
+                </div>
+                <p className="text-xs text-rose-400 truncate">{u.email}</p>
+
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${u.role==='admin'?'bg-purple-100 text-purple-700':'bg-rose-100 text-rose-600'}`}>
+                    {u.role==='admin'&&<ShieldCheck size={9}/>} {u.role}
+                  </span>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${u.is_active?'bg-emerald-100 text-emerald-700':'bg-red-100 text-red-600'}`}>
+                    {u.is_active ? 'Active' : 'Disabled'}
+                  </span>
+                  <span className={`text-[10px] font-medium px-2 py-0.5 ${u.email_verified?'text-emerald-600':'text-amber-500'}`}>
+                    {u.email_verified ? '✓ Verified' : '⚠ Pending'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {u.id !== me?.id && (
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-rose-50">
+                <span className="text-rose-400 text-xs">
+                  Joined {new Date(u.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+                </span>
+                <div className="flex gap-2">
+                  <button onClick={() => toggleActive(u.id)} title={u.is_active?'Disable':'Enable'}
+                    className={`p-2 rounded-lg transition-colors ${u.is_active?'text-red-400 hover:text-red-600 hover:bg-red-50':'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50'}`}>
+                    {u.is_active ? <UserX size={16}/> : <UserCheck size={16}/>}
+                  </button>
+                  <button onClick={() => toggleRole(u.id, u.role)} title={u.role==='admin'?'Revoke admin':'Make admin'}
+                    className={`p-2 rounded-lg transition-colors ${u.role==='admin'?'text-purple-400 hover:text-purple-600 hover:bg-purple-50':'text-blue-400 hover:text-blue-600 hover:bg-blue-50'}`}>
+                    {u.role==='admin' ? <ShieldOff size={16}/> : <ShieldCheck size={16}/>}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </AdminLayout>
   );

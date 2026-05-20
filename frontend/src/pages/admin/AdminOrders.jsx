@@ -47,19 +47,20 @@ export default function AdminOrders() {
       </div>
 
       {/* Filters */}
-      <div className="card p-4 mb-5 flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[180px]">
+      <div className="card p-4 mb-5 flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 min-w-0">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-300" />
           <input className="form-input pl-9 rounded-full text-sm" placeholder="Search by name or order #…"
             value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-        <select className="form-input min-w-[150px] rounded-full text-sm" value={filter} onChange={e => setFilter(e.target.value)}>
+        <select className="form-input sm:w-auto sm:min-w-[150px] rounded-full text-sm" value={filter} onChange={e => setFilter(e.target.value)}>
           <option value="">All Statuses</option>
           {STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
         </select>
       </div>
 
-      <div className="card overflow-hidden">
+      {/* Desktop Table (hidden on mobile) */}
+      <div className="card overflow-hidden hidden md:block">
         <div className="overflow-x-auto">
           {loading ? <div className="flex justify-center py-16"><Spinner size="lg" /></div> : (
             <table className="tbl w-full">
@@ -132,6 +133,74 @@ export default function AdminOrders() {
             </table>
           )}
         </div>
+      </div>
+
+      {/* Mobile Card Layout */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="flex justify-center py-16"><Spinner size="lg" /></div>
+        ) : orders.length === 0 ? (
+          <div className="card p-8 text-center text-rose-300">No orders found</div>
+        ) : orders.map(o => (
+          <div key={o.id} className="card overflow-hidden animate-fade-in">
+            <div className="p-4">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div>
+                  <p className="font-mono text-xs font-bold text-rose-700">{o.order_number}</p>
+                  <p className="font-semibold text-sm text-rose-800 mt-0.5">{o.user_name}</p>
+                  <p className="text-xs text-rose-400">{o.user_email}</p>
+                </div>
+                <StatusBadge status={o.status} />
+              </div>
+
+              <div className="flex items-center justify-between mt-3">
+                <span className="font-bold text-rose-700">{formatPrice(o.total_price)}</span>
+                <span className="text-rose-400 text-xs">
+                  {new Date(o.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+                </span>
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-rose-50 flex items-center gap-2">
+                <select
+                  className="form-input py-1.5 text-xs rounded-lg flex-1"
+                  value={o.status}
+                  onChange={e => updateStatus(o.id, e.target.value)}
+                >
+                  {STATUSES.map(s => (
+                    <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => setExpanded(expanded === o.id ? null : o.id)}
+                  className="p-2 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0"
+                >
+                  <ChevronDown size={16} className={`transition-transform ${expanded===o.id?'rotate-180':''}`} />
+                </button>
+              </div>
+            </div>
+
+            {expanded === o.id && (
+              <div className="bg-rose-50/60 px-4 py-3 border-t border-rose-100">
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <p className="text-[10px] font-bold text-rose-400 uppercase tracking-wider mb-1">Shipping</p>
+                    <div className="text-rose-700 space-y-0.5">
+                      {o.shipping_name    && <p><strong>{o.shipping_name}</strong></p>}
+                      {o.shipping_phone   && <p>📞 {o.shipping_phone}</p>}
+                      {o.shipping_email   && <p>✉️ {o.shipping_email}</p>}
+                      {o.shipping_address && <p>📍 {o.shipping_address}</p>}
+                      {o.notes            && <p className="italic text-rose-400">Note: {o.notes}</p>}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-rose-400 uppercase tracking-wider mb-1">Payment</p>
+                    <p className="text-rose-700 capitalize">{o.payment_method}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </AdminLayout>
   );

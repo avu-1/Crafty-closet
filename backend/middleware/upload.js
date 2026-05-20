@@ -1,19 +1,9 @@
 // backend/middleware/upload.js
 const multer = require('multer');
-const path   = require('path');
-const fs     = require('fs');
 
-const UPLOAD_DIR = path.join(__dirname, '..', process.env.UPLOAD_DIR || 'uploads');
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-  filename:    (_req, file, cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase();
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-    cb(null, name);
-  },
-});
+// Use memory storage — file is kept in req.file.buffer, never written to disk.
+// This avoids Render's ephemeral filesystem issue.
+const storage = multer.memoryStorage();
 
 const fileFilter = (_req, file, cb) => {
   const allowed = /^image\/(jpeg|jpg|png|webp|gif)$/;

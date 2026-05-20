@@ -124,7 +124,7 @@ exports.getProduct = async (req, res, next) => {
 exports.createProduct = async (req, res, next) => {
   try {
     const { name, description, price, compare_price, category, stock } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : '/uploads/placeholder.jpg';
+    const image = req.firebaseImageUrl || '/uploads/placeholder.jpg';
 
     let slug = makeSlug(name);
     const [existing] = await pool.query('SELECT id FROM products WHERE slug = ?', [slug]);
@@ -167,9 +167,9 @@ exports.updateProduct = async (req, res, next) => {
       }
     });
 
-    if (req.file) {
+    if (req.firebaseImageUrl) {
       fields.push('image = ?');
-      values.push(`/uploads/${req.file.filename}`);
+      values.push(req.firebaseImageUrl);
     }
 
     if (req.body.name) {
