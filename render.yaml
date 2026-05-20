@@ -1,0 +1,43 @@
+services:
+  # ── Node.js Backend ──────────────────────────────────────────
+  - type: web
+    name: crafty-closet-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # MySQL — filled in from the Render MySQL service below
+      - key: MYSQL_URL
+        fromDatabase:
+          name: crafty-closet-db
+          property: connectionString
+      # Firebase Admin (paste your base64 value in the Render dashboard)
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false
+      # CORS — set this to your Firebase Hosting URL
+      - key: CLIENT_URL
+        sync: false
+      # Email (optional)
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USER
+        sync: false
+      - key: MAIL_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+
+databases:
+  # ── MySQL Database ────────────────────────────────────────────
+  - name: crafty-closet-db
+    databaseName: crafty_closet_v2
+    plan: free
