@@ -1,36 +1,27 @@
 // backend/config/mailer.js
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
-// Create transporter (works with Gmail, Outlook, any SMTP)
-const transporter = nodemailer.createTransport({
-  host:   process.env.MAIL_HOST || 'smtp.gmail.com',
-  port:   parseInt(process.env.MAIL_PORT || '587'),
-  secure: process.env.MAIL_PORT === '465', // true for 465, false for 587
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
-
-// Verify connection on startup (only if mail is configured)
-if (process.env.MAIL_USER && process.env.MAIL_PASS) {
-  transporter.verify()
-    .then(() => console.log('✅  Nodemailer ready'))
-    .catch(err => console.warn('⚠️   Nodemailer not configured:', err.message));
+// Configure SendGrid API key
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('✅  SendGrid mailer ready');
+} else {
+  console.warn('⚠️   SENDGRID_API_KEY not set — emails will be skipped');
 }
 
 // ── Email sender helper ────────────────────────────────────────
 const sendMail = async ({ to, subject, html }) => {
-  if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
+  if (!process.env.SENDGRID_API_KEY) {
     console.log(`📧  [MAIL SKIPPED — not configured] To: ${to} | Subject: ${subject}`);
     return;
   }
-  return transporter.sendMail({
-    from:    process.env.MAIL_FROM || `"Crafty Closet" <${process.env.MAIL_USER}>`,
+  const msg = {
     to,
+    from: process.env.MAIL_FROM || 'avu0000001@gmail.com',
     subject,
     html,
-  });
+  };
+  return sgMail.send(msg);
 };
 
 // ── Email Templates ────────────────────────────────────────────

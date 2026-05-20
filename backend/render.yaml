@@ -15,8 +15,5 @@ services:
       # MYSQL_URL          = mysql://avnadmin:PASSWORD@HOST:PORT/defaultdb?ssl-mode=REQUIRED
       # FIREBASE_SERVICE_ACCOUNT = <base64-encoded service account JSON>
       # CLIENT_URL         = https://crafty-closet-5dc41.web.app
-      # MAIL_HOST          = smtp.gmail.com
-      # MAIL_PORT          = 587
-      # MAIL_USER          = avu0000001@gmail.com
-      # MAIL_PASS          = <your app password>
-      # MAIL_FROM          = "Crafty Closet <avu0000001@gmail.com>"
+      # SENDGRID_API_KEY   = SG.xxxxxxxxxxxxxxxxxxxx
+      # MAIL_FROM          = avu0000001@gmail.com
