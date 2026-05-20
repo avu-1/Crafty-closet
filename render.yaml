@@ -1,43 +1,47 @@
-services:
-  # ── Node.js Backend ──────────────────────────────────────────
-  - type: web
-    name: crafty-closet-backend
-    runtime: node
-    rootDir: backend
-    buildCommand: npm install
-    startCommand: npm start
-    plan: free
-    healthCheckPath: /api/health
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      # MySQL — filled in from the Render MySQL service below
-      - key: MYSQL_URL
-        fromDatabase:
-          name: crafty-closet-db
-          property: connectionString
-      # Firebase Admin (paste your base64 value in the Render dashboard)
-      - key: FIREBASE_SERVICE_ACCOUNT
-        sync: false
-      # CORS — set this to your Firebase Hosting URL
-      - key: CLIENT_URL
-        sync: false
-      # Email (optional)
-      - key: MAIL_HOST
-        sync: false
-      - key: MAIL_PORT
-        sync: false
-      - key: MAIL_USER
-        sync: false
-      - key: MAIL_PASS
-        sync: false
-      - key: MAIL_FROM
-        sync: false
-
-databases:
-  # ── MySQL Database ────────────────────────────────────────────
-  - name: crafty-closet-db
-    databaseName: crafty_closet_v2
-    plan: free
+# ─────────────────────────────────────────────────────────────────────────────
+# Railway Deployment — Crafty Closet Backend
+# ─────────────────────────────────────────────────────────────────────────────
+# This project is deployed on Railway (https://railway.app).
+# The machine-readable config lives in /railway.json at the repo root.
+#
+# HOW TO DEPLOY
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. Push this repo to GitHub.
+# 2. Go to https://railway.app → New Project → Deploy from GitHub repo.
+# 3. Select this repository. Railway auto-detects Node.js via Nixpacks.
+# 4. In the Railway dashboard, open the service → Variables tab and add:
+#
+#   NODE_ENV              = production
+#   PORT                  = 3000          (Railway sets $PORT automatically,
+#                                          but you can override it here)
+#
+#   # ── MySQL (external — e.g. PlanetScale / Aiven / Railway MySQL plugin) ──
+#   # Paste your full connection string:
+#   # mysql://USER:PASSWORD@HOST:PORT/DATABASE?ssl={"rejectUnauthorized":true}
+#   MYSQL_URL             = <your-connection-string>
+#
+#   # ── Firebase Admin ───────────────────────────────────────────────────────
+#   # Base64-encoded service account JSON.
+#   # Get it: Firebase Console → Project Settings → Service Accounts →
+#   #         Generate new private key
+#   # Encode: base64 -i serviceAccount.json | tr -d '\n'   (Linux/Mac)
+#   #         [Convert]::ToBase64String([IO.File]::ReadAllBytes('svc.json'))  (PS)
+#   FIREBASE_SERVICE_ACCOUNT = <base64-string>
+#
+#   # ── CORS ─────────────────────────────────────────────────────────────────
+#   # Your Firebase Hosting URL (comma-separate multiple origins)
+#   CLIENT_URL            = https://crafty-closet-5dc41.web.app
+#
+#   # ── Email (Nodemailer — optional) ────────────────────────────────────────
+#   MAIL_HOST             = smtp.example.com
+#   MAIL_PORT             = 587
+#   MAIL_USER             = you@example.com
+#   MAIL_PASS             = <password>
+#   MAIL_FROM             = "Crafty Closet <no-reply@example.com>"
+#
+# 5. Railway will build with: npm install
+#    and start with:          npm start   (node server.js)
+#
+# 6. After deploy, copy the Railway public URL and update CLIENT_URL in your
+#    frontend .env and re-deploy the frontend to Firebase Hosting.
+# ─────────────────────────────────────────────────────────────────────────────

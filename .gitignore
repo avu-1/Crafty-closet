@@ -28,6 +28,7 @@ backend/uploads/*
 
 # Test coverage
 backend/coverage/
+frontend/coverage/
 
 # OS
 .DS_Store
