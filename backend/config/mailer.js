@@ -15,11 +15,33 @@ const sendMail = async ({ to, subject, html }) => {
     console.log(`📧  [MAIL SKIPPED — not configured] To: ${to} | Subject: ${subject}`);
     return;
   }
+
+  // Strip HTML tags to create a plain-text fallback (improves spam score)
+  const text = html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
   const msg = {
     to,
-    from: process.env.MAIL_FROM || 'avu0000001@gmail.com',
+    from: {
+      email: process.env.MAIL_FROM || 'avu0000001@gmail.com',
+      name: 'Crafty Closet',
+    },
     subject,
     html,
+    text,
+    headers: {
+      'List-Unsubscribe': `<mailto:${process.env.MAIL_FROM || 'avu0000001@gmail.com'}?subject=unsubscribe>`,
+    },
+    mailSettings: {
+      bypassListManagement: { enable: false },
+    },
+    trackingSettings: {
+      clickTracking: { enable: false },     // SendGrid click tracking rewrites URLs — spam trigger
+      openTracking: { enable: false },      // Tracking pixels can trigger spam filters
+    },
   };
   return sgMail.send(msg);
 };
