@@ -1,36 +1,40 @@
 // backend/config/mailer.js
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// Create transporter (works with Gmail, Outlook, any SMTP)
-const transporter = nodemailer.createTransport({
-  host:   process.env.MAIL_HOST || 'smtp.gmail.com',
-  port:   parseInt(process.env.MAIL_PORT || '587'),
-  secure: process.env.MAIL_PORT === '465', // true for 465, false for 587
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Verify connection on startup (only if mail is configured)
-if (process.env.MAIL_USER && process.env.MAIL_PASS) {
-  transporter.verify()
-    .then(() => console.log('✅  Nodemailer ready'))
-    .catch(err => console.warn('⚠️   Nodemailer not configured:', err.message));
+if (process.env.RESEND_API_KEY) {
+  console.log('✅  Resend API configured');
+} else {
+  console.warn('⚠️   Resend API not configured');
 }
 
 // ── Email sender helper ────────────────────────────────────────
 const sendMail = async ({ to, subject, html }) => {
-  if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
+  if (!process.env.RESEND_API_KEY) {
     console.log(`📧  [MAIL SKIPPED — not configured] To: ${to} | Subject: ${subject}`);
     return;
   }
-  return transporter.sendMail({
-    from:    process.env.MAIL_FROM || `"Crafty Closet" <${process.env.MAIL_USER}>`,
-    to,
-    subject,
-    html,
-  });
+  
+  try {
+    const { data, error } = await resend.emails.send({
+      // Resend requires verified domains, use onboarding@resend.dev as fallback
+      from: process.env.MAIL_FROM || 'Crafty Closet <onboarding@resend.dev>',
+      to,
+      subject,
+      html,
+    });
+    
+    if (error) {
+      console.error('❌ Resend email failed:', error);
+      throw error;
+    }
+    
+    return data;
+  } catch (err) {
+    console.error('❌ Error sending mail:', err);
+    throw err;
+  }
 };
 
 // ── Email Templates ────────────────────────────────────────────
