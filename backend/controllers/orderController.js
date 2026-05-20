@@ -83,7 +83,10 @@ exports.placeOrder = async (req, res, next) => {
       shipping_address,
     };
     const emailTo = shipping_email || req.user.email;
-    sendOrderConfirmation(emailTo, req.user.name, order, cartItems).catch(() => {});
+    const nameTo = shipping_name || req.user.name;
+    sendOrderConfirmation(emailTo, nameTo, order, cartItems).catch((err) => {
+      console.error('Order confirmation email failed:', err);
+    });
 
     res.status(201).json({
       success: true,
@@ -185,7 +188,11 @@ exports.updateOrderStatus = async (req, res, next) => {
 
     // Send status update email
     const updated = { ...order, status };
-    sendOrderStatusUpdate(order.user_email, order.user_name, updated).catch(() => {});
+    const emailTo = order.shipping_email || order.user_email;
+    const nameTo = order.shipping_name || order.user_name;
+    sendOrderStatusUpdate(emailTo, nameTo, updated).catch((err) => {
+      console.error('Order status email failed:', err);
+    });
 
     res.json({ success: true, message: 'Order status updated.' });
   } catch (err) { next(err); }

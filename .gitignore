@@ -33,3 +33,8 @@ frontend/coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Railway (no longer used)
+.railway/
+railway.json
+railway_deploy.ps1

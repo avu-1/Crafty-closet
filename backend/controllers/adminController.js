@@ -6,12 +6,12 @@ exports.getStats = async (_req, res, next) => {
   try {
     const [[{ total_products }]] = await pool.query('SELECT COUNT(*) AS total_products FROM products');
     const [[{ total_orders }]]   = await pool.query('SELECT COUNT(*) AS total_orders FROM orders');
-    const [[{ total_users }]]    = await pool.query('SELECT COUNT(*) AS total_users FROM users WHERE role = "user"');
+    const [[{ total_users }]]    = await pool.query(`SELECT COUNT(*) AS total_users FROM users WHERE role = 'user'`);
     const [[{ revenue }]]        = await pool.query(
-      'SELECT COALESCE(SUM(total_price), 0) AS revenue FROM orders WHERE status != "cancelled"'
+      `SELECT COALESCE(SUM(total_price), 0) AS revenue FROM orders WHERE status != 'cancelled'`
     );
     const [[{ pending }]]        = await pool.query(
-      'SELECT COUNT(*) AS pending FROM orders WHERE status = "pending"'
+      `SELECT COUNT(*) AS pending FROM orders WHERE status = 'pending'`
     );
     const [[{ low_stock }]]      = await pool.query(
       'SELECT COUNT(*) AS low_stock FROM products WHERE stock <= 5 AND is_active = 1'

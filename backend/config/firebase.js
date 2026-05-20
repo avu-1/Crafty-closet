@@ -17,7 +17,10 @@ if (!admin.apps.length) {
       credential = admin.credential.applicationDefault();
     }
 
-    admin.initializeApp({ credential });
+    admin.initializeApp({
+      credential,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'crafty-closet-5dc41.firebasestorage.app',
+    });
     console.log('✅ Firebase Admin initialized successfully.');
   } catch (error) {
     // Re-throw so startup fails loudly rather than silently accepting all auth requests

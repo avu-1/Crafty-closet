@@ -3,10 +3,16 @@
 export const formatPrice = (p) =>
   `₹${parseFloat(p || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+// In dev: Vite proxy forwards /uploads → localhost:5000
+// In production: prefix with the Render backend URL
+const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || '';
+
 export const imgSrc = (path) => {
   if (!path) return '/placeholder.svg';
   if (path.startsWith('http')) return path;
-  return path; // Vite proxy serves /uploads/* from backend
+  // Absolute-ify relative /uploads paths in production
+  if (path.startsWith('/uploads') && API_BASE) return `${API_BASE}${path}`;
+  return path;
 };
 
 export const renderStars = (rating) => {
